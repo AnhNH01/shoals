@@ -14,6 +14,7 @@ import { DataSource } from 'typeorm';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['dev.env'],
+      cache: true,
     }),
     TypeOrmModule.forRoot({
       type:'postgres',
