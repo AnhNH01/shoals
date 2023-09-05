@@ -37,14 +37,15 @@ export class AuthService {
     }
 
     async register(registerDto: RegisterUserDto) {
+        
+        if (registerDto.password !== registerDto.password2) {
+            throw new BadRequestException('Passwords must match!');
+        }
+
         const existed = await this.userService.findOneByEmail(registerDto.email);
 
         if (existed) {
             throw new BadRequestException('User with this email already exist!');
-        }
-
-        if (registerDto.password !== registerDto.password2) {
-            throw new BadRequestException('Passwords must match!');
         }
 
         const hashedPassword = await bcrypt.hash(registerDto.password, 6);
