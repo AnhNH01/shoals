@@ -7,6 +7,10 @@ import { User } from './users/users.entity';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { DataSource } from 'typeorm';
+import { ConversationsModule } from './conversations/conversations.module';
+import { MessagesModule } from './messages/messages.module';
+import { Conversation } from './conversations/conversations.entity';
+import { Message } from './messages/messages.entity';
 
 
 @Module({
@@ -23,12 +27,14 @@ import { DataSource } from 'typeorm';
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-      entities: [User],
+      entities: [User, Conversation, Message],
       autoLoadEntities: true,
       synchronize: true,
     }),
     UsersModule,
-    AuthModule
+    AuthModule,
+    ConversationsModule,
+    MessagesModule
   ],
   controllers: [AppController],
   providers: [AppService],
