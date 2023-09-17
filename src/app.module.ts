@@ -12,7 +12,6 @@ import { MessagesModule } from './messages/messages.module';
 import { Conversation } from './conversations/conversations.entity';
 import { Message } from './messages/messages.entity';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -21,7 +20,7 @@ import { Message } from './messages/messages.entity';
       cache: true,
     }),
     TypeOrmModule.forRoot({
-      type:'postgres',
+      type: 'postgres',
       host: '127.0.0.1',
       port: 5432,
       username: process.env.DATABASE_USERNAME,
@@ -34,11 +33,11 @@ import { Message } from './messages/messages.entity';
     UsersModule,
     AuthModule,
     ConversationsModule,
-    MessagesModule
+    MessagesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {
-  constructor(private dataSource: DataSource){}
+  constructor(private dataSource: DataSource) {}
 }

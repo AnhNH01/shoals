@@ -11,9 +11,14 @@ import { Conversation } from 'src/conversations/conversations.entity';
 import { User } from 'src/users/users.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Message]), ConversationsModule, TypeOrmModule.forFeature([Conversation]), TypeOrmModule.forFeature([User])],
+  imports: [
+    TypeOrmModule.forFeature([Message]),
+    ConversationsModule,
+    TypeOrmModule.forFeature([Conversation]),
+    TypeOrmModule.forFeature([User]),
+  ],
   providers: [MessagesService, ConversationsService, UsersService],
   controllers: [MessagesController],
-  exports: [MessagesService]
+  exports: [MessagesService],
 })
 export class MessagesModule {}
