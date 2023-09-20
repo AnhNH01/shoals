@@ -8,7 +8,6 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { DataSource } from 'typeorm';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -17,7 +16,7 @@ import { DataSource } from 'typeorm';
       cache: true,
     }),
     TypeOrmModule.forRoot({
-      type:'postgres',
+      type: 'postgres',
       host: '127.0.0.1',
       port: 5432,
       username: process.env.DATABASE_USERNAME,
@@ -28,11 +27,11 @@ import { DataSource } from 'typeorm';
       synchronize: true,
     }),
     UsersModule,
-    AuthModule
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {
-  constructor(private dataSource: DataSource){}
+  constructor(private dataSource: DataSource) {}
 }

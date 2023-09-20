@@ -5,17 +5,17 @@ import { RegisterUserDto } from './dto/register.dto';
 
 @Controller('auth')
 export class AuthController {
-    constructor(private authService: AuthService){}
+  constructor(private authService: AuthService) {}
 
-    @HttpCode(HttpStatus.OK)
-    @Post('login')
-    signIn(@Body() signInDto: SignInDto) {
-        return this.authService.signIn(signInDto.email, signInDto.password);
-    }
+  @HttpCode(HttpStatus.OK)
+  @Post('login')
+  signIn(@Body() signInDto: SignInDto) {
+    return this.authService.signIn(signInDto.email, signInDto.password);
+  }
 
-    @HttpCode(HttpStatus.CREATED)
-    @Post('register')
-    register(@Body() registerDto: RegisterUserDto) {
-        return this.authService.register(registerDto);
-    }
+  @HttpCode(HttpStatus.CREATED)
+  @Post('register')
+  register(@Body() registerDto: RegisterUserDto) {
+    return this.authService.register(registerDto);
+  }
 }
