@@ -5,11 +5,15 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from 'src/users/users.service';
 import { ConfigService } from '@nestjs/config/dist/config.service';
 import { RegisterUserDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import * as argon from 'argon2';
+import { CreateUserDto } from 'src/users/dtos/create-user.dto';
+import { User } from 'src/users/interfaces/users.interface';
+import { UsersService } from 'src/users/services/users.service';
+import { Tokens } from './interfaces/tokens.interface';
+import { UpdateUserDto } from 'src/users/dtos/update-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -19,7 +23,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signIn(email: string, password: string): Promise<any> {
+  async signIn(email: string, password: string): Promise<Tokens> {
     const user = await this.userService.findOneByEmail(email);
 
     if (!user) {
@@ -31,14 +35,39 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const payload = { sub: user.id, email: user.email, name: user.name };
+    const [accessToken, refreshToken] = await this.getTokens(user);
+
+    await this.updateRefreshTokenHash(user.id, refreshToken);
 
     return {
-      accessToken: await this.jwtService.signAsync(payload, {
-        secret: this.configService.get<string>('JWT_SECRET'),
-        expiresIn: this.configService.get<string>('JWT_EXPIRE'),
-      }),
+      accessToken,
+      refreshToken,
     };
+  }
+
+  async jwtRefresh(userId: number, refreshTokenHash: string) {
+    const user = await this.userService.findOneById(userId);
+
+    const rtokenHashMatch = await argon.verify(
+      user.refreshToken,
+      refreshTokenHash,
+    );
+
+    if (!rtokenHashMatch) {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    const [accessToken, refreshToken] = await this.getTokens(user);
+    await this.updateRefreshTokenHash(userId, refreshToken);
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  async signOut(userId: number) {
+    await this.userService.updateUser({ id: userId, refreshToken: null });
   }
 
   async register(registerDto: RegisterUserDto) {
@@ -66,6 +95,63 @@ export class AuthService {
         'Something went wrong while creating your user',
       );
     }
-    return user;
+
+    const [accessToken, refreshToken] = await this.getTokens(user);
+
+    await this.updateRefreshTokenHash(user.id, refreshToken);
+
+    return {
+      accessToken,
+      refreshToken,
+      user,
+    };
+  }
+
+  async getUserFromJwtToken(jwtToken: string): Promise<User | null> {
+    try {
+      const decoded = await this.jwtService.verifyAsync(jwtToken);
+      const user: User = {
+        id: decoded.sub,
+        email: decoded.email,
+        name: decoded.name,
+      };
+
+      return user;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async getTokens(user: User) {
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      name: user.name,
+    };
+
+    const tokens = await Promise.all([
+      this.jwtService.signAsync(payload, {
+        secret: this.configService.get<string>('AT_SECRET'),
+        expiresIn: this.configService.get<string>('AT_EXPIRE'),
+      }),
+
+      this.jwtService.signAsync(payload, {
+        secret: this.configService.get<string>('RT_SECRET'),
+        expiresIn: this.configService.get<string>('RT_EXPIRE'),
+      }),
+    ]);
+
+    return tokens;
+  }
+
+  async updateRefreshTokenHash(userId: number, refreshToken: string) {
+    const hash = await argon.hash(refreshToken);
+
+    const updateParams: UpdateUserDto = {
+      id: userId,
+      refreshToken: hash,
+    };
+
+    return this.userService.updateUser(updateParams);
   }
 }
