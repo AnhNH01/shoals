@@ -11,7 +11,7 @@ import { AuthService } from './auth.service';
 import { SignInDto } from './dto/sign-in.dto';
 import { RegisterUserDto } from './dto/register.dto';
 import { Request } from 'express';
-import { Public } from 'src/common/decorators';
+import { CurrentUser, Public } from 'src/common/decorators';
 import { JwtRefreshGuard } from 'src/common/guards';
 
 @Controller('auth')
@@ -34,8 +34,7 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('logout')
-  logout(@Req() request: Request) {
-    const userId = request.user['sub'];
+  logout(@CurrentUser('sub') userId) {
     return this.authService.signOut(userId);
   }
 

@@ -14,6 +14,7 @@ import { User } from 'src/users/interfaces/users.interface';
 import { UsersService } from 'src/users/services/users.service';
 import { Tokens } from './interfaces/tokens.interface';
 import { UpdateUserDto } from 'src/users/dtos/update-user.dto';
+import { JwtPayload } from './interfaces';
 
 @Injectable()
 export class AuthService {
@@ -109,7 +110,9 @@ export class AuthService {
 
   async getUserFromJwtToken(jwtToken: string): Promise<User | null> {
     try {
-      const decoded = await this.jwtService.verifyAsync(jwtToken);
+      const decoded = await this.jwtService.verifyAsync(jwtToken, {
+        secret: this.configService.get('AT_SECRET'),
+      });
       const user: User = {
         id: decoded.sub,
         email: decoded.email,
@@ -123,7 +126,7 @@ export class AuthService {
   }
 
   async getTokens(user: User) {
-    const payload = {
+    const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
       name: user.name,
