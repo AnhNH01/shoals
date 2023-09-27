@@ -167,7 +167,9 @@ export class FriendShipService {
       },
       where: [
         {
-          firstFriend: false,
+          firstFriend: {
+            id: userId,
+          },
         },
         {
           secondFriend: {
@@ -178,14 +180,20 @@ export class FriendShipService {
       select: {
         firstFriend: {
           id: true,
+          name: true,
         },
         secondFriend: {
           id: true,
+          name: true,
         },
       },
     });
 
-    return friendships;
+    const friends = Array.from(friendships, (fs) => {
+      if (fs.firstFriend.id === userId) return fs.secondFriend;
+      else return fs.firstFriend;
+    });
+    return friends;
   }
 
   async getFriendRequestsReceived(userId: number) {
