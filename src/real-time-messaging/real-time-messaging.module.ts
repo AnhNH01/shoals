@@ -7,6 +7,7 @@ import { ActiveUserEntity } from '../users/entities/active-user.entity';
 import { MessagingGateway } from './gateway/messaging.gateway';
 import { ConversationService } from './services/conversation.service';
 import { UsersModule } from 'src/users/users.module';
+import { ConversationController } from './controllers/conversation.controller';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { UsersModule } from 'src/users/users.module';
     UsersModule,
   ],
   providers: [MessagingGateway, ConversationService],
+  controllers: [ConversationController],
   exports: [ConversationService],
 })
 export class RealTimeMessagingModule {}

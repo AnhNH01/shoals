@@ -6,41 +6,41 @@ import { MessageEntity } from '../entites/message.entity';
 import { ActiveUserEntity } from 'src/users/entities/active-user.entity';
 import { MessageDto } from '../dtos';
 import { ActiveUser } from 'src/users/interfaces';
+import { UsersService } from 'src/users/services/users.service';
 
 @Injectable()
 export class ConversationService {
   constructor(
     @InjectRepository(ConversationEntity)
-    private readonly conversationRepostory: Repository<ConversationEntity>,
+    private readonly conversationRepository: Repository<ConversationEntity>,
     @InjectRepository(MessageEntity)
     private readonly messageRepository: Repository<MessageEntity>,
     @InjectRepository(ActiveUserEntity)
     private readonly activeUserRepository: Repository<ActiveUserEntity>,
+    private readonly userService: UsersService,
   ) {}
 
   async getConversationsByUser(userId: number): Promise<ConversationEntity[]> {
-    const conversations = await this.conversationRepostory
-      .createQueryBuilder('conversations_by_user')
+    const conversations = await this.conversationRepository
+      .createQueryBuilder('conversation')
       .leftJoin('conversation.users', 'user')
       .where('user.id = :id', { id: userId })
-      .orderBy('conversation.lastUpdate', 'DESC')
       .getMany();
-
     return conversations;
   }
 
-  // async createConversation(userIds: number[]) {
-  //   const users = await this.usersService.findManyByIds(userIds);
+  async createConversation(userIds: number[]) {
+    const users = await this.userService.findManyByIds(userIds);
 
-  //   const conversation = this.conversationRepostory.create({
-  //     users: users,
-  //   });
+    const conversation = this.conversationRepository.create({
+      users: users,
+    });
 
-  //   return await this.conversationRepostory.save(conversation);
-  // }
+    return await this.conversationRepository.save(conversation);
+  }
 
   async getUsersInConversation(conversationId: number) {
-    const conversation = await this.conversationRepostory
+    const conversation = await this.conversationRepository
       .createQueryBuilder('users_in_conversation')
       .innerJoinAndSelect('conversation.users', 'users')
       .where('conversation.id = :id', { id: conversationId })
@@ -55,7 +55,7 @@ export class ConversationService {
   async getActiveUsersInConversation(
     conversationId: number,
   ): Promise<ActiveUser[]> {
-    const conversation = await this.conversationRepostory.findOneBy({
+    const conversation = await this.conversationRepository.findOneBy({
       id: conversationId,
     });
 
