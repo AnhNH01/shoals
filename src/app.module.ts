@@ -9,6 +9,7 @@ import { RealTimeMessagingModule } from './real-time-messaging/real-time-messagi
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAccessGuard } from './common/guards/jwt-access.guard';
 import { FriendshipModule } from './friendship/friendship.module';
+import { PostsModule } from './posts/posts.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { FriendshipModule } from './friendship/friendship.module';
     AuthModule,
     RealTimeMessagingModule,
     FriendshipModule,
+    PostsModule,
   ],
   controllers: [AppController],
   providers: [
