@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { ConversationEntity } from './conversation.entity';
 import { UserEntity } from 'src/users/entities/users.entity';
 
@@ -15,4 +21,7 @@ export class MessageEntity {
 
   @ManyToOne(() => UserEntity, (user) => user.messages)
   user: UserEntity;
+
+  @CreateDateColumn()
+  createTime: Date;
 }

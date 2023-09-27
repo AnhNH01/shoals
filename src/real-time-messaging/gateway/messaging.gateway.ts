@@ -37,7 +37,6 @@ export class MessagingGateway
 
   @UseGuards(JwtAccessGuard)
   async handleConnection(socket: Socket) {
-    console.log(`handle connection from ${socket.id}`);
     let jwt = socket.handshake.headers.authorization || null;
     if (jwt) {
       jwt = jwt.replace('Bearer', '').trim();
@@ -46,9 +45,9 @@ export class MessagingGateway
     const user = await this.authService.getUserFromJwtToken(jwt);
     if (!user) {
       socket.disconnect();
-      console.log('Disconnected due to unauthorization');
-      throw new WsException('Unauthorized');
     }
+
+    socket.data.user = user;
 
     const activeUser = this.manager.create(ActiveUserEntity, {
       userId: user.id,
@@ -79,5 +78,11 @@ export class MessagingGateway
     });
 
     await this.conversationService.saveMessage(message);
+  }
+
+  @SubscribeMessage('joinConversation')
+  async handleJoinConversation(socket: Socket, conversationId: number) {
+    const messages = this.conversationService.getMessages(conversationId);
+    this.server.to(socket.id).emit('messages', messages);
   }
 }

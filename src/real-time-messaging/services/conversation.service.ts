@@ -76,4 +76,32 @@ export class ConversationService {
 
     await this.messageRepository.save(message);
   }
+
+  async getMessages(conversationId: number) {
+    const messages = await this.messageRepository.find({
+      relations: {
+        conversation: true,
+        user: true,
+      },
+      where: {
+        conversation: {
+          id: conversationId,
+        },
+      },
+      select: {
+        conversation: {
+          id: true,
+        },
+        user: {
+          id: true,
+          name: true,
+        },
+      },
+      order: {
+        createTime: 'ASC',
+      },
+    });
+
+    return messages;
+  }
 }
