@@ -1,4 +1,5 @@
 import { User } from 'src/users/interfaces';
+import { Comment } from './comment.interface';
 
 export interface Post {
   id: number;
@@ -7,4 +8,5 @@ export interface Post {
   imageUrl?: string;
   createdAt?: Date;
   updatesAt?: Date;
+  comments?: Comment[];
 }

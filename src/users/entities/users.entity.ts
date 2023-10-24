@@ -12,6 +12,7 @@ import {
 import { FriendRequestEntity } from '../../friendship/entities/friend-request.entity';
 import { FriendshipEntity } from 'src/friendship/entities';
 import { PostEntity } from 'src/posts/entities/post.entity';
+import { CommentEntity } from 'src/posts/entities/comment.entity';
 
 @Entity()
 export class UserEntity {
@@ -44,6 +45,9 @@ export class UserEntity {
 
   @OneToMany(() => PostEntity, (post) => post.user)
   posts: PostEntity[];
+
+  @OneToMany(() => CommentEntity, (comment) => comment.user)
+  comments: CommentEntity[];
 
   messages: MessageEntity[];
 
